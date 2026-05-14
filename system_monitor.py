@@ -40,19 +40,6 @@ import config
 from mqtt_handler import HomeNodeMQTT
 from utils import get_system_mac 
 
-def format_list_for_ha(data_list):
-    """Joins a list into a string and truncates to ~250 chars."""
-    if not data_list:
-        return "None"
-    
-    # Convert all items to string just in case
-    str_list = [str(i) for i in data_list]
-    joined = ", ".join(sorted(str_list))
-    
-    if len(joined) > 250:
-        return joined[:247] + "..."
-    return joined
-
 
 # Cache rtl_433 version so we don't spawn a process every minute.
 _RTL_433_VERSION_CACHE = None
@@ -111,7 +98,14 @@ def system_stats_loop(mqtt_handler, DEVICE_ID, MODEL_NAME):
             devices = mqtt_handler.tracked_devices
             count = len(devices)
 
-            mqtt_handler.send_sensor(DEVICE_ID, "sys_device_count", count, device_name, MODEL_NAME, is_rtl=True, attributes={"devices": mqtt_handler.tracked_devices})
+            # list the devices as dictionary for HA attributes, key is the name and value is the last seen time
+            # sort the dictionary by last seen time, most recent first
+            device_count_attributes = {
+                name: f"{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_seen))}" if last_seen is not None else 0
+                for name, last_seen in sorted(devices.items(), key=lambda item: (-item[1], item[0]))
+            }
+
+            mqtt_handler.send_sensor(DEVICE_ID, "sys_device_count", count, device_name, MODEL_NAME, is_rtl=True, attributes=device_count_attributes)
             mqtt_handler.send_sensor(DEVICE_ID, "sys_rtl_433_version", rtl_433_version, device_name, MODEL_NAME, is_rtl=True)
             
             # B. Configuration Lists (Sent as Diagnostics)
