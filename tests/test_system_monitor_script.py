@@ -16,7 +16,7 @@ def test_system_stats_loop_one_iteration_sends_device_count(mocker):
     mocker.patch.object(system_monitor, "PSUTIL_AVAILABLE", False)
 
     mqtt_handler = mocker.Mock()
-    mqtt_handler.tracked_devices = {"A", "B", "C"}
+    mqtt_handler.tracked_devices = {"A": 1.0, "B": 2.0, "C": 3.0}
 
     # break after first iteration (sleep is at end of loop)
     mocker.patch("system_monitor.time.sleep", side_effect=InterruptedError("stop"))

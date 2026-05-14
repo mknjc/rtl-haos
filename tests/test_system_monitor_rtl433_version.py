@@ -55,7 +55,7 @@ def test_system_stats_loop_publishes_rtl_433_version_once(monkeypatch):
     sent = []
 
     class DummyMQTT:
-        tracked_devices = {"A", "B"}
+        tracked_devices = {"A": 1.0, "B": 2.0}
 
         def send_sensor(self, *args, **kwargs):
             # args: (DEVICE_ID, key, value, device_name, model_name, ...)

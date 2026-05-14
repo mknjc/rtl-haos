@@ -243,7 +243,7 @@ def test_nuke_all_and_stop_scan(monkeypatch):
     # Seed internal sets so stop scan clears them
     h.discovery_published.add("x")
     h.last_sent_values["k"] = "v"
-    h.tracked_devices.add("d")
+    h.tracked_devices["d"] = 1.0
 
     h.nuke_all()
     assert h.is_nuking is True
@@ -254,7 +254,7 @@ def test_nuke_all_and_stop_scan(monkeypatch):
     assert "homeassistant/+/+/config" in c.unsubscribed
     assert h.discovery_published == set()
     assert h.last_sent_values == {}
-    assert h.tracked_devices == set()
+    assert h.tracked_devices == {}
 
     # availability restored online and buttons republished
     assert any(t.endswith("/availability") and p == "online" and r is True for (t, p, r) in c.published)

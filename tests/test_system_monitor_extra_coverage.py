@@ -44,7 +44,7 @@ def test_system_stats_loop_psutil_success_path(monkeypatch):
     sent = []
 
     class DummyMQTT:
-        tracked_devices = {"A", "B", "C"}
+        tracked_devices = {"A": 1.0, "B": 2.0, "C": 3.0}
 
         def send_sensor(self, *a, **k):
             sent.append((a, k))
@@ -70,7 +70,7 @@ def test_system_stats_loop_handles_systemmonitor_init_failure(monkeypatch, capsy
     import system_monitor
 
     class DummyMQTT:
-        tracked_devices = set()
+        tracked_devices = {}
         def send_sensor(self, *a, **k): return
 
     monkeypatch.setattr(system_monitor, "PSUTIL_AVAILABLE", True)

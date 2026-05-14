@@ -110,12 +110,10 @@ def system_stats_loop(mqtt_handler, DEVICE_ID, MODEL_NAME):
             # A. Tracked Devices
             devices = mqtt_handler.tracked_devices
             count = len(devices)
-            dev_list_str = format_list_for_ha(devices) if count > 0 else "Scanning..."
 
-            mqtt_handler.send_sensor(DEVICE_ID, "sys_device_count", count, device_name, MODEL_NAME, is_rtl=True)
+            mqtt_handler.send_sensor(DEVICE_ID, "sys_device_count", count, device_name, MODEL_NAME, is_rtl=True, attributes={"devices": mqtt_handler.tracked_devices})
             mqtt_handler.send_sensor(DEVICE_ID, "sys_rtl_433_version", rtl_433_version, device_name, MODEL_NAME, is_rtl=True)
-            # mqtt_handler.send_sensor(DEVICE_ID, "sys_device_list", dev_list_str, device_name, MODEL_NAME, is_rtl=True)
-
+            
             # B. Configuration Lists (Sent as Diagnostics)
             # We fetch these fresh from config every loop in case of future hot-reloads
             # bl = getattr(config, "DEVICE_BLACKLIST", [])

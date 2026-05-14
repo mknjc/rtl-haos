@@ -152,7 +152,7 @@ class HomeNodeMQTT:
 
         self.discovery_published = set()
         self.last_sent_values = {}
-        self.tracked_devices = set()
+        self.tracked_devices: dict[str, float] = {}
 
         # Track one-time migrations (e.g., entity type/domain changes)
         self.migration_cleared = set()
@@ -550,11 +550,11 @@ class HomeNodeMQTT:
             self._discovery_sig[unique_id] = sig
             return True
 
-    def send_sensor(self, sensor_id, field, value, device_name, device_model, is_rtl=True, friendly_name=None):
+    def send_sensor(self, sensor_id, field, value, device_name, device_model, is_rtl=True, friendly_name=None, attributes=None):
         if value is None:
             return
 
-        self.tracked_devices.add(device_name)
+        self.tracked_devices[device_name] = time.time()
 
         clean_id = clean_mac(sensor_id) 
         
@@ -673,6 +673,12 @@ class HomeNodeMQTT:
             if friendly_name is None:
                 friendly_name = "Battery Low"
 
+        json_attributes_topic = None
+        if attributes is not None:
+            json_attributes_topic = f"home/rtl_devices/{state_topic_base}/{field}/attributes"
+            attr_extra = {"json_attributes_topic": json_attributes_topic}
+            extra_payload = dict(extra_payload, **attr_extra) if extra_payload else attr_extra
+
         discovery_published_now = self._publish_discovery(
             field,
             state_topic,
@@ -691,6 +697,8 @@ class HomeNodeMQTT:
         if value_changed or is_rtl:
             self.client.publish(state_topic, str(out_value), retain=True)
             self.last_sent_values[unique_id_v2] = out_value
+            if json_attributes_topic is not None:
+                self.client.publish(json_attributes_topic, json.dumps(attributes), retain=True)
 
             if value_changed:
                 # --- NEW: Check Verbosity Setting ---

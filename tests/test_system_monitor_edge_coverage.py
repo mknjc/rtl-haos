@@ -12,7 +12,7 @@ def test_system_stats_loop_bridge_stats_error_is_caught(mocker, capsys):
     """Covers [ERROR] Bridge Stats update failed path."""
 
     mqtt = mocker.Mock()
-    mqtt.tracked_devices = {"dev1"}
+    mqtt.tracked_devices = {"dev1": 1.0}
     mqtt.send_sensor = mocker.Mock(side_effect=RuntimeError("boom"))
 
     mocker.patch.object(system_monitor, "PSUTIL_AVAILABLE", False)
@@ -33,7 +33,7 @@ def test_system_stats_loop_hardware_stats_error_is_caught(mocker, capsys):
             raise RuntimeError("broken")
 
     mqtt = mocker.Mock()
-    mqtt.tracked_devices = set()
+    mqtt.tracked_devices = {}
     mqtt.send_sensor = mocker.Mock()
 
     mocker.patch.object(system_monitor, "PSUTIL_AVAILABLE", True)

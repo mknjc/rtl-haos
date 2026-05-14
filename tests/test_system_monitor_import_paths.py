@@ -55,7 +55,7 @@ def test_format_list_for_ha_and_loop_one_iteration(monkeypatch):
     # Run a single loop iteration by forcing time.sleep to abort.
     class DummyMQTT:
         def __init__(self):
-            self.tracked_devices = {"a", "b"}
+            self.tracked_devices = {"a": 1.0, "b": 2.0}
             self.calls = []
 
         def send_sensor(self, device_id, field, value, device_name, model_name, is_rtl=True):
